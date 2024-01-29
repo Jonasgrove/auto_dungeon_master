@@ -24,6 +24,9 @@ class AutoDungeonMaster:
         self.campaign = None
         self.turn = 0
         self.game_over = False
+
+        self.players_current_response = ""
+        self.dms_current_response = ""
     
     def start_new_campaign(self):
         """
@@ -32,9 +35,13 @@ class AutoDungeonMaster:
         """
         self.respond(constants.LOGO)
         self.respond(constants.WELCOME_INTRO)
-        self.campaign_name = input("Please enter a name for your campaign: ")
-        self.campaign_desc = input("Please enter a brief description of the adventure you want to embark on: ")
-        self.num_players = int(input("Please enter the number of adventurers you would like to have in your game: "))
+        self.campaign_name = utils.prompt_for_player_input(
+            "Please enter a name for your campaign: ")
+        self.campaign_desc = utils.prompt_for_player_input(
+            "Please enter a brief description of the adventure you want to embark on: ")
+        self.num_players = int(
+            utils.prompt_for_player_input(
+                "Please enter the number of adventurers you would like to have in your game: "))
 
         self.set_players()
         start_game_prompt = constants.NEW_GAME_SYSTEM_PROMPT.format(
@@ -49,7 +56,7 @@ class AutoDungeonMaster:
         self.campaign = Campaign(
             name=self.campaign_name,
             current_response=response,
-            campaign_context={f"dm_turn_{self.turn}": response}
+            campaign_context=[{f"dm_turn_{self.turn}": response}]
         )
         self.respond(response)
 
@@ -114,22 +121,47 @@ class AutoDungeonMaster:
 
         return all_player_info
 
-    def dungeon_master_turn(self):
-        """
-        Executes the turn of the dungeon master
-        """
-        print("dm turn")
-    
     def players_turn(self):
         """
         Execute the turn of a player
         """
         print("player turn")
+        self.players_current_response = utils.prompt_for_player_input(
+            "Describe the campaign's next action: "
+        )
+
+        if self.players_current_response == "leave dungeon":
+            self.game_over = True
+        else:
+            self.campaign.add_campaign_context(
+                {f"players_turn_{self.turn}": self.players_current_response}
+            )
+    
+    def dungeon_master_turn(self):
+        """
+        Executes the turn of the dungeon master
+        """
+        print("dm turn")
+        existing_game_context = constants.EXISTING_GAME_SYSTEM_PROMPT.format(
+            game_context=self.campaign.get_campaign_context(),
+            player_information=self._get_all_player_info()
+        )
+        self.dms_current_response = utils.make_api_request(
+            context=existing_game_context,
+            prompt=self.players_current_response
+
+        )
+        self.campaign.add_campaign_context(
+            {f"dm_turn_{self.turn}": self.dms_current_response}
+        )
+
+        self.respond(self.dms_current_response)
 
     def respond(self, msg):
         """
         Placeholder method for communicating information via the CLI.
         TODO add formatting
         """
+        print("")
         print(msg)
     

@@ -36,7 +36,8 @@ WELCOME_INTRO = "A Role Playing Game (poorly) powered by Artifical Inteligence. 
                 "To begin the game, you will need to enter the name of your campaign, \n" \
                 "a brief description of the world you want to explore, and the number \n" \
                 "of players that will be participating. After this initial information is entered, \n" \
-                "each player will be prompted to enter their initial character information."
+                "each player will be prompted to enter their initial character information. \n" \
+                "If you want to exit the game, type 'leave dungeon' as your response."
 
 
 # API request templates

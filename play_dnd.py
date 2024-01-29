@@ -3,7 +3,7 @@
 import argparse
 
 from auto_dungeon_master.auto_dm import AutoDungeonMaster
-
+ 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Start or Resume a Dungeons and Dragons Campaign.')
@@ -25,6 +25,7 @@ def main():
     campaign_db = args.campaign_db
 
     if campaign_db:
+        # TODO
         print("Loading campaign from database")
 
     game_over = False
@@ -35,12 +36,16 @@ def main():
             auto_dm_obj = AutoDungeonMaster()
             auto_dm_obj.start_new_campaign()
             start_of_campaign = False
+            auto_dm_obj.turn += 1
 
         elif game_in_session:
             auto_dm_obj.players_turn()
             auto_dm_obj.dungeon_master_turn()
             game_over = auto_dm_obj.game_over
-        break
+            auto_dm_obj.turn += 1
+            
+        
+
             
 
 
